@@ -1,6 +1,7 @@
-let latestMessage = "";
+export default defineEventHandler(async () => {
+  const storage = useStorage();
+  const latestMessage = await storage.getItem("latest-message");
 
-export default defineEventHandler(() => {
   return {
     statusCode: 200,
     message: latestMessage,
