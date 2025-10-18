@@ -4,15 +4,15 @@
       <div class="flex-1">
         <UTextarea
           v-model="messageText"
-          placeholder="Type a message..."
+          placeholder="短いメッセージを入力！"
           :rows="1"
-          :maxlength="140"
+          :maxlength="50"
           autoresize
           :ui="{ root: 'relative', base: 'resize-none' }"
           @keydown.enter.prevent="handleSend"
         />
         <div class="flex justify-end mt-1">
-          <span class="text-sm text-gray-600 dark:text-gray-500" :class="remainingColor"> {{ remaining }} / 140 </span>
+          <span class="text-sm text-gray-600 dark:text-gray-500" :class="remainingColor"> {{ remaining }} / 50 </span>
         </div>
       </div>
 
@@ -31,8 +31,8 @@ const emit = defineEmits<{
 // 入力テキスト
 const messageText = ref("");
 
-// 残り文字数（最大140）
-const remaining = computed(() => 140 - messageText.value.length);
+// 残り文字数（最大50）
+const remaining = computed(() => 50 - messageText.value.length);
 
 // 残り文字数に応じた警告色
 const remainingColor = computed(() => {
@@ -44,7 +44,7 @@ const remainingColor = computed(() => {
 
 // 送信可否: 空白のみ・上限超過は不可
 const canSend = computed(() => {
-  return messageText.value.trim().length > 0 && messageText.value.length <= 140;
+  return messageText.value.trim().length > 0 && messageText.value.length <= 50;
 });
 
 // 送信処理: バリデーション通過時に emit して入力をクリア
