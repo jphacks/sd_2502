@@ -38,7 +38,7 @@ export const useMessaging = () => {
   // ===== 操作（Actions） =====
   // メッセージ送信（楽観的UI）
   const sendMessage = async (text: string) => {
-    const clientId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const clientId = `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     const newMessage: Message = {
       id: clientId,
       clientId,
@@ -93,7 +93,7 @@ export const useMessaging = () => {
 
   // リアクション送信（アイコン文字をテキストとして送る）
   const sendReaction = async (reaction: ReactionType) => {
-    const clientId = `react-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const clientId = `react-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     const newMessage: Message = {
       id: clientId,
       clientId,
