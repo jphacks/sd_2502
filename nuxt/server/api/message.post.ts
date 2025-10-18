@@ -9,10 +9,11 @@ export default defineEventHandler(async (event) => {
     };
   }
 
-  await storage.setItem("latest-message", body.message);
+  const latestMessage = String(body.message);
+  await storage.setItem("latest-message", latestMessage);
 
   return {
     statusCode: 200,
-    message: body.message,
+    message: latestMessage,
   };
 });
