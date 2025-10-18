@@ -72,7 +72,6 @@ export const useMessaging = () => {
           icon: "i-heroicons-check-circle",
         });
 
-        // 少し後に ack に変更
         setTimeout(() => {
           const idx = messages.value.findIndex((m: Message) => m.clientId === clientId);
           if (idx !== -1) {
@@ -114,25 +113,42 @@ export const useMessaging = () => {
     messages.value.push(newMessage);
     deviceState.value.queueCount++;
 
-    // 擬似送信（1-2秒）
-    await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000));
+    try {
+      // API呼び出し
+      await $fetch<MessageApiResponse>("/api/message", {
+        method: "POST",
+        body: { message: reaction },
+      });
 
-    const messageIndex = messages.value.findIndex((m: Message) => m.clientId === clientId);
-    if (messageIndex !== -1) {
-      const msg = messages.value[messageIndex];
-      if (msg) msg.status = "sent";
-      deviceState.value.queueCount--;
+      const messageIndex = messages.value.findIndex((m: Message) => m.clientId === clientId);
+      if (messageIndex !== -1) {
+        const msg = messages.value[messageIndex];
+        if (msg) msg.status = "sent";
+        deviceState.value.queueCount--;
 
-      setTimeout(
-        () => {
+        setTimeout(() => {
           const idx = messages.value.findIndex((m: Message) => m.clientId === clientId);
           if (idx !== -1) {
             const m2 = messages.value[idx];
             if (m2) m2.status = "ack";
           }
-        },
-        500 + Math.random() * 1000,
-      );
+        }, 1000);
+      }
+    } catch (error) {
+      // 失敗時の処理
+      const messageIndex = messages.value.findIndex((m: Message) => m.clientId === clientId);
+      if (messageIndex !== -1) {
+        const msg = messages.value[messageIndex];
+        if (msg) msg.status = "failed";
+        deviceState.value.queueCount--;
+
+        toast.add({
+          title: "Send failed",
+          description: "Please try again",
+          color: "error",
+          icon: "i-heroicons-x-circle",
+        });
+      }
     }
   };
 
