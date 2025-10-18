@@ -10,12 +10,11 @@
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2">
           <UIcon :name="directionIcon" class="w-5 h-5" :class="directionColor" />
-          <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
-            {{ direction === "in" ? "Received" : "Sent" }}
+          <span class="text-base font-medium text-gray-600 dark:text-gray-400">
+            {{ direction === "in" ? "受信" : "送信" }}
           </span>
         </div>
-
-        <UBadge v-if="message" :color="statusBadgeColor" variant="subtle" size="xs">
+        <UBadge v-if="message" :color="statusBadgeColor" variant="subtle" size="sm">
           {{ statusLabel }}
         </UBadge>
       </div>
@@ -31,7 +30,7 @@
       </div>
 
       <div class="flex justify-end">
-        <span class="text-xs text-gray-500 dark:text-gray-400">
+        <span class="text-sm text-gray-500 dark:text-gray-400">
           {{ timeString }}
         </span>
       </div>

@@ -6,8 +6,8 @@
       <!-- 左側: デバイス名と状態バッジ -->
       <div class="flex items-center gap-3">
         <h1 class="text-lg font-semibold text-gray-900 dark:text-white">{{ deviceState.name }}</h1>
-        <UBadge :color="statusColor" variant="subtle" size="xs">
-          {{ deviceState.status.toUpperCase() }}
+        <UBadge :color="statusColor" variant="subtle" size="sm">
+          {{ statusLabel }}
         </UBadge>
       </div>
 
@@ -19,10 +19,10 @@
           variant="ghost"
           size="sm"
           @click="toggleTheme()"
-          :aria-label="`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`"
+          :aria-label="`テーマを${theme === 'dark' ? 'ライト' : 'ダーク'}モードに切り替え`"
         />
         <!-- 最終更新のラベル付き表示。ホバーでフル日時を表示 -->
-        <span class="text-xs text-gray-500 dark:text-gray-400" :title="lastSyncFull">
+        <span class="text-sm text-gray-500 dark:text-gray-400" :title="lastSyncFull">
           最終更新: {{ lastSyncTime }}
         </span>
         <UButton
@@ -63,6 +63,20 @@ const statusColor = computed((): "primary" | "secondary" | "success" | "info" | 
       return "error";
     default:
       return "neutral";
+  }
+});
+
+// 状態表示の日本語ラベル
+const statusLabel = computed(() => {
+  switch (props.deviceState.status) {
+    case "online":
+      return "オンライン";
+    case "syncing":
+      return "同期中";
+    case "offline":
+      return "オフライン";
+    default:
+      return "不明";
   }
 });
 

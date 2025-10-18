@@ -1,23 +1,31 @@
 <template>
-  <div class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-4">
-    <div class="flex items-end gap-2">
-      <div class="flex-1">
+  <div
+    class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 sm:px-6 py-3 sm:py-4 pb-safe flex-1 flex flex-col"
+  >
+    <div class="flex items-start gap-2 sm:gap-3 flex-1">
+      <div class="flex-1 flex flex-col min-h-0">
         <UTextarea
           v-model="messageText"
-          placeholder="Type a message..."
+          placeholder="短いメッセージを入力!"
           :rows="1"
-          :maxlength="140"
-          autoresize
-          :ui="{ root: 'relative', base: 'resize-none' }"
+          :maxlength="50"
+          :ui="{ root: 'relative flex-1', base: 'resize-none' }"
           @keydown.enter.prevent="handleSend"
         />
         <div class="flex justify-end mt-1">
-          <span class="text-xs text-gray-600 dark:text-gray-500" :class="remainingColor"> {{ remaining }} / 140 </span>
+          <span class="text-sm text-gray-600 dark:text-gray-500" :class="remainingColor"> {{ remaining }} / 50 </span>
         </div>
       </div>
 
-      <!-- 送信ボタン（入力が空/上限超過のときは無効） -->
-      <UButton icon="i-heroicons-paper-airplane" color="primary" size="lg" :disabled="!canSend" @click="handleSend" />
+      <!-- 送信ボタン(入力が空/上限超過のときは無効) -->
+      <UButton
+        icon="i-heroicons-paper-airplane"
+        color="primary"
+        size="lg"
+        :disabled="!canSend"
+        @click="handleSend"
+        class="shrink-0"
+      />
     </div>
   </div>
 </template>
@@ -31,8 +39,8 @@ const emit = defineEmits<{
 // 入力テキスト
 const messageText = ref("");
 
-// 残り文字数（最大140）
-const remaining = computed(() => 140 - messageText.value.length);
+// 残り文字数（最大50）
+const remaining = computed(() => 50 - messageText.value.length);
 
 // 残り文字数に応じた警告色
 const remainingColor = computed(() => {
@@ -44,7 +52,7 @@ const remainingColor = computed(() => {
 
 // 送信可否: 空白のみ・上限超過は不可
 const canSend = computed(() => {
-  return messageText.value.trim().length > 0 && messageText.value.length <= 140;
+  return messageText.value.trim().length > 0 && messageText.value.length <= 50;
 });
 
 // 送信処理: バリデーション通過時に emit して入力をクリア
