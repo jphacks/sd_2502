@@ -64,13 +64,13 @@ const statusLabel = computed(() => {
 
   switch (props.message.status) {
     case "sending":
-      return "Sending";
+      return "送信中";
     case "sent":
-      return "Sent";
+      return "送信済み";
     case "failed":
-      return "Failed";
+      return "送信失敗";
     case "ack":
-      return "Ack";
+      return "送信完了";
     default:
       return "";
   }
