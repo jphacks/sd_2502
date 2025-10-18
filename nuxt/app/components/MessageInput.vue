@@ -1,14 +1,15 @@
 <template>
-  <div class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-4">
-    <div class="flex items-end gap-2">
-      <div class="flex-1">
+  <div
+    class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 sm:px-6 py-3 sm:py-4 pb-safe flex-1 flex flex-col"
+  >
+    <div class="flex items-start gap-2 sm:gap-3 flex-1">
+      <div class="flex-1 flex flex-col min-h-0">
         <UTextarea
           v-model="messageText"
-          placeholder="短いメッセージを入力！"
+          placeholder="短いメッセージを入力!"
           :rows="1"
           :maxlength="50"
-          autoresize
-          :ui="{ root: 'relative', base: 'resize-none' }"
+          :ui="{ root: 'relative flex-1', base: 'resize-none' }"
           @keydown.enter.prevent="handleSend"
         />
         <div class="flex justify-end mt-1">
@@ -16,8 +17,15 @@
         </div>
       </div>
 
-      <!-- 送信ボタン（入力が空/上限超過のときは無効） -->
-      <UButton icon="i-heroicons-paper-airplane" color="primary" size="lg" :disabled="!canSend" @click="handleSend" />
+      <!-- 送信ボタン(入力が空/上限超過のときは無効) -->
+      <UButton
+        icon="i-heroicons-paper-airplane"
+        color="primary"
+        size="lg"
+        :disabled="!canSend"
+        @click="handleSend"
+        class="shrink-0"
+      />
     </div>
   </div>
 </template>
