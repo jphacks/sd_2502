@@ -1,4 +1,4 @@
-import type { Message, DeviceState, ReactionType } from "../../types/message";
+import type { Message, DeviceState, ReactionType, MessageApiResponse } from "../../types/message";
 import { ref, computed, onMounted } from "vue";
 
 export const useMessaging = () => {
@@ -36,7 +36,7 @@ export const useMessaging = () => {
   });
 
   // ===== 操作（Actions） =====
-  // メッセージ送信（楽観的UI）
+  // メッセージ送信（楽観的UI + API連携）
   const sendMessage = async (text: string) => {
     const clientId = `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     const newMessage: Message = {
@@ -48,39 +48,47 @@ export const useMessaging = () => {
       timestamp: Date.now(),
     };
 
+    // 楽観的UI: 即座にメッセージを追加
     messages.value.push(newMessage);
     deviceState.value.queueCount++;
 
-    // 擬似送信処理（2-4秒後にランダムで成功/失敗）
-    await new Promise((resolve) => setTimeout(resolve, 2000 + Math.random() * 2000));
+    try {
+      // API呼び出し
+      await $fetch<MessageApiResponse>("/api/message", {
+        method: "POST",
+        body: { message: text },
+      });
 
-    const success = Math.random() > 0.2; // 80%成功率
-    const messageIndex = messages.value.findIndex((m: Message) => m.clientId === clientId);
+      // 成功時の処理
+      const messageIndex = messages.value.findIndex((m: Message) => m.clientId === clientId);
+      if (messageIndex !== -1) {
+        const msg = messages.value[messageIndex];
+        if (msg) msg.status = "sent";
+        deviceState.value.queueCount--;
 
-    if (messageIndex !== -1) {
-      const msg = messages.value[messageIndex];
-      if (msg) msg.status = success ? "sent" : "failed";
-      deviceState.value.queueCount--;
-
-      if (success) {
         toast.add({
           title: "Sent successfully",
           color: "success",
           icon: "i-heroicons-check-circle",
         });
 
-        // さらに1-3秒後に ack に変更（サーバ応答を模擬）
-        setTimeout(
-          () => {
-            const idx = messages.value.findIndex((m: Message) => m.clientId === clientId);
-            if (idx !== -1) {
-              const m2 = messages.value[idx];
-              if (m2) m2.status = "ack";
-            }
-          },
-          1000 + Math.random() * 2000,
-        );
-      } else {
+        // 少し後に ack に変更
+        setTimeout(() => {
+          const idx = messages.value.findIndex((m: Message) => m.clientId === clientId);
+          if (idx !== -1) {
+            const m2 = messages.value[idx];
+            if (m2) m2.status = "ack";
+          }
+        }, 1000);
+      }
+    } catch (error) {
+      // 失敗時の処理
+      const messageIndex = messages.value.findIndex((m: Message) => m.clientId === clientId);
+      if (messageIndex !== -1) {
+        const msg = messages.value[messageIndex];
+        if (msg) msg.status = "failed";
+        deviceState.value.queueCount--;
+
         toast.add({
           title: "Send failed",
           description: "Please try again",
@@ -128,41 +136,47 @@ export const useMessaging = () => {
     }
   };
 
-  // 手動リフレッシュ（受信メッセージを1件生成し最終同期時刻を更新）
+  // 手動リフレッシュ（APIからメッセージを取得）
   const manualRefresh = async () => {
     deviceState.value.status = "syncing";
 
-    // 擬似受信メッセージ生成
-    await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000));
+    try {
+      // API呼び出し
+      const response = await $fetch<MessageApiResponse>("/api/message", {
+        method: "GET",
+      });
 
-    const responses: string[] = [
-      "こんにちは！",
-      "お疲れ様です",
-      "了解しました",
-      "ありがとうございます",
-      "👍",
-      "確認しました",
-    ];
-    const idx = Math.floor(Math.random() * responses.length);
-    const text = responses[idx] ?? "OK";
+      // メッセージがあれば受信メッセージとして追加
+      if (response.message) {
+        const incomingMessage: Message = {
+          id: `msg-in-${Date.now()}`,
+          text: response.message,
+          direction: "in",
+          status: "ack",
+          timestamp: Date.now(),
+        };
 
-    const incomingMessage: Message = {
-      id: `msg-in-${Date.now()}`,
-      text,
-      direction: "in",
-      status: "ack",
-      timestamp: Date.now(),
-    };
+        messages.value.push(incomingMessage);
+      }
 
-    messages.value.push(incomingMessage);
-    deviceState.value.lastSync = Date.now();
-    deviceState.value.status = "online";
+      deviceState.value.lastSync = Date.now();
+      deviceState.value.status = "online";
 
-    toast.add({
-      title: "Refreshed",
-      color: "info",
-      icon: "i-heroicons-arrow-path",
-    });
+      toast.add({
+        title: "Refreshed",
+        color: "info",
+        icon: "i-heroicons-arrow-path",
+      });
+    } catch (error) {
+      deviceState.value.status = "offline";
+
+      toast.add({
+        title: "Refresh failed",
+        description: "Could not fetch messages",
+        color: "error",
+        icon: "i-heroicons-x-circle",
+      });
+    }
   };
 
   // Poll 間隔切り替え（3秒⇄10秒）
