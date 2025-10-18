@@ -22,7 +22,7 @@
       <!-- 本文（メッセージが無い場合はプレースホルダー） -->
       <div v-if="message" class="min-h-[80px] flex items-center">
         <p class="text-2xl text-gray-900 dark:text-white break-words w-full">
-          {{ message.text }}
+          {{ parsedText }}
         </p>
       </div>
       <div v-else class="min-h-[80px] flex items-center justify-center">
@@ -94,6 +94,14 @@ const statusBadgeColor = computed(
     }
   },
 );
+
+// メッセージ本文の絵文字パース
+const parsedText = computed(() => {
+  if (!props.message?.text) return "";
+
+  //'good' を 👍 に置換、'bad' を 🙂‍↔️ に置換
+  return props.message.text.replace(/\bgood\b/gi, "👍").replace(/\bbad\b/gi, "🙂‍↔️");
+});
 
 // タイムスタンプの人間可読表示
 const timeString = computed(() => {
