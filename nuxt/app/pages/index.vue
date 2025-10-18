@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// メッセージング用の状態と操作を Composable から取得
 const {
   deviceState,
   latestIncoming,
@@ -12,22 +13,22 @@ const {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-950 flex flex-col">
-    <!-- Header -->
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
+    <!-- ヘッダー（デバイス状態の表示と手動更新ボタン） -->
     <AppHeader :device-state="deviceState" @refresh="manualRefresh" />
 
-    <!-- Main Content -->
+    <!-- メインコンテンツ：直近の入出力メッセージをカードで表示 -->
     <div class="flex-1 overflow-y-auto px-4 py-6">
       <div class="max-w-2xl mx-auto space-y-4">
-        <!-- Latest Incoming Message Card -->
+        <!-- 直近の受信メッセージ -->
         <MessageCard :message="latestIncoming" direction="in" />
 
-        <!-- Latest Outgoing Message Card -->
+        <!-- 直近の送信メッセージ -->
         <MessageCard :message="latestOutgoing" direction="out" />
       </div>
     </div>
 
-    <!-- Action Bar -->
+    <!-- アクションバー（キュー数、ポーリング間隔切替、リアクション送信） -->
     <ActionBar
       :queue-count="queueCount"
       :poll-ms="deviceState.pollMs"
@@ -35,7 +36,7 @@ const {
       @toggle-poll="togglePollSpeed"
     />
 
-    <!-- Message Input -->
+    <!-- メッセージ入力（送信トリガーで sendMessage を呼び出し） -->
     <MessageInput @send="sendMessage" />
   </div>
 </template>

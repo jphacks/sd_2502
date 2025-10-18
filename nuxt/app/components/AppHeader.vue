@@ -1,18 +1,33 @@
 <template>
-  <div class="sticky top-0 z-10 bg-gray-900 border-b border-gray-800 px-4 py-3">
+  <div
+    class="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b border-gray-200 dark:border-gray-800 px-4 py-3"
+  >
     <div class="flex items-center justify-between">
+      <!-- 左側: デバイス名と状態バッジ -->
       <div class="flex items-center gap-3">
-        <h1 class="text-lg font-semibold text-white">{{ deviceState.name }}</h1>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-white">{{ deviceState.name }}</h1>
         <UBadge :color="statusColor" variant="subtle" size="xs">
           {{ deviceState.status.toUpperCase() }}
         </UBadge>
       </div>
 
+      <!-- 右側: テーマ切替 / 最終同期時刻 / 手動更新ボタン -->
       <div class="flex items-center gap-3">
-        <span class="text-xs text-gray-400">{{ lastSyncTime }}</span>
+        <UButton
+          :icon="theme === 'dark' ? 'i-heroicons-moon' : 'i-heroicons-sun'"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          @click="toggleTheme()"
+          :aria-label="`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`"
+        />
+        <!-- 最終更新のラベル付き表示。ホバーでフル日時を表示 -->
+        <span class="text-xs text-gray-500 dark:text-gray-400" :title="lastSyncFull">
+          最終更新: {{ lastSyncTime }}
+        </span>
         <UButton
           icon="i-heroicons-arrow-path"
-          color="gray"
+          color="neutral"
           variant="ghost"
           size="sm"
           :loading="deviceState.status === 'syncing'"
@@ -24,34 +39,53 @@
 </template>
 
 <script setup lang="ts">
-import type { DeviceState } from "~/types/message";
+import type { DeviceState } from "../../types/message";
+const { theme, toggleTheme } = useTheme();
 
+// props: 親から渡されるデバイス状態（名前/オンライン状態/最終同期など）
 const props = defineProps<{
   deviceState: DeviceState;
 }>();
 
+// emits: 手動更新トリガー
 const emit = defineEmits<{
   refresh: [];
 }>();
 
-const statusColor = computed(() => {
+// 状態に応じたバッジ色（UI の視認性向上）
+const statusColor = computed((): "primary" | "secondary" | "success" | "info" | "warning" | "error" | "neutral" => {
   switch (props.deviceState.status) {
     case "online":
-      return "green";
+      return "success";
     case "syncing":
-      return "yellow";
+      return "warning";
     case "offline":
-      return "red";
+      return "error";
     default:
-      return "gray";
+      return "neutral";
   }
 });
 
+// 最終同期時刻を日本語ロケールで表示
 const lastSyncTime = computed(() => {
   const date = new Date(props.deviceState.lastSync);
   return date.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
 });
 
+// ツールチップ用のフル日時（年月日 + 時分秒）
+const lastSyncFull = computed(() => {
+  const date = new Date(props.deviceState.lastSync);
+  return date.toLocaleString("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+});
+
+// 更新ボタン押下時のハンドラ
 const onRefresh = () => {
   emit("refresh");
 };
