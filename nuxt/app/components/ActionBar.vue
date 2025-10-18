@@ -53,7 +53,7 @@ defineEmits<{
 }>();
 
 // 表示するリアクションの候補
-const reactions: ReactionType[] = ["👍", "❤️", "✨", "❗"];
+const reactions: ReactionType[] = ["👍", "❤️", "✨"];
 
 // ポーリング間隔から表示ラベルを算出
 // const pollSpeed = computed(() => {
