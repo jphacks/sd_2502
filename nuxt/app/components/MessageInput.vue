@@ -12,7 +12,7 @@
           @keydown.enter.prevent="handleSend"
         />
         <div class="flex justify-end mt-1">
-          <span class="text-xs text-gray-600 dark:text-gray-500" :class="remainingColor"> {{ remaining }} / 140 </span>
+          <span class="text-sm text-gray-600 dark:text-gray-500" :class="remainingColor"> {{ remaining }} / 140 </span>
         </div>
       </div>
 

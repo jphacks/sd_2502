@@ -6,7 +6,7 @@
       <!-- 左側: デバイス名と状態バッジ -->
       <div class="flex items-center gap-3">
         <h1 class="text-lg font-semibold text-gray-900 dark:text-white">{{ deviceState.name }}</h1>
-        <UBadge :color="statusColor" variant="subtle" size="xs">
+        <UBadge :color="statusColor" variant="subtle" size="sm">
           {{ statusLabel }}
         </UBadge>
       </div>
@@ -22,7 +22,7 @@
           :aria-label="`テーマを${theme === 'dark' ? 'ライト' : 'ダーク'}モードに切り替え`"
         />
         <!-- 最終更新のラベル付き表示。ホバーでフル日時を表示 -->
-        <span class="text-xs text-gray-500 dark:text-gray-400" :title="lastSyncFull">
+        <span class="text-sm text-gray-500 dark:text-gray-400" :title="lastSyncFull">
           最終更新: {{ lastSyncTime }}
         </span>
         <UButton
