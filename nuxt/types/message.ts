@@ -19,3 +19,9 @@ export type DeviceState = {
 };
 
 export type ReactionType = "👍" | "❤️" | "✨" | "❗";
+
+/** APIのレスポンス型定義 */
+export type MessageApiResponse = {
+  statusCode: number;
+  message: string | null;
+};
