@@ -11,7 +11,7 @@
         <div class="flex items-center gap-2">
           <UIcon :name="directionIcon" class="w-5 h-5" :class="directionColor" />
           <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
-            {{ direction === "in" ? "Received" : "Sent" }}
+            {{ direction === "in" ? "受信" : "送信" }}
           </span>
         </div>
 
