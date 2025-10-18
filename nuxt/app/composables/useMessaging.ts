@@ -1,5 +1,5 @@
 import type { Message, DeviceState, ReactionType, MessageApiResponse } from "../../types/message";
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 export const useMessaging = () => {
   // ===== 状態（State） =====
@@ -14,6 +14,9 @@ export const useMessaging = () => {
   });
 
   const toast = useToast();
+
+  // SSE接続の管理
+  let eventSource: EventSource | null = null;
 
   // ===== 派生値（Derived） =====
   // 最新の受信メッセージ
@@ -56,7 +59,7 @@ export const useMessaging = () => {
       // API呼び出し
       await $fetch<MessageApiResponse>("/api/message", {
         method: "POST",
-        body: { message: text },
+        body: { message: text, clientId },
       });
 
       // 成功時の処理
@@ -71,14 +74,6 @@ export const useMessaging = () => {
           color: "success",
           icon: "i-heroicons-check-circle",
         });
-
-        setTimeout(() => {
-          const idx = messages.value.findIndex((m: Message) => m.clientId === clientId);
-          if (idx !== -1) {
-            const m2 = messages.value[idx];
-            if (m2) m2.status = "ack";
-          }
-        }, 1000);
       }
     } catch (error) {
       // 失敗時の処理
@@ -117,7 +112,7 @@ export const useMessaging = () => {
       // API呼び出し
       await $fetch<MessageApiResponse>("/api/message", {
         method: "POST",
-        body: { message: reaction },
+        body: { message: reaction, clientId },
       });
 
       const messageIndex = messages.value.findIndex((m: Message) => m.clientId === clientId);
@@ -125,14 +120,6 @@ export const useMessaging = () => {
         const msg = messages.value[messageIndex];
         if (msg) msg.status = "sent";
         deviceState.value.queueCount--;
-
-        setTimeout(() => {
-          const idx = messages.value.findIndex((m: Message) => m.clientId === clientId);
-          if (idx !== -1) {
-            const m2 = messages.value[idx];
-            if (m2) m2.status = "ack";
-          }
-        }, 1000);
       }
     } catch (error) {
       // 失敗時の処理
@@ -152,52 +139,84 @@ export const useMessaging = () => {
     }
   };
 
-  // 手動リフレッシュ（APIからメッセージを取得）
-  const manualRefresh = async () => {
-    deviceState.value.status = "syncing";
-
-    try {
-      // API呼び出し
-      const response = await $fetch<MessageApiResponse>("/api/message", {
-        method: "GET",
-      });
-
-      // メッセージがあれば受信メッセージとして追加
-      if (response.message) {
-        const incomingMessage: Message = {
-          id: `msg-in-${Date.now()}`,
-          text: response.message,
-          direction: "in",
-          status: "ack",
-          timestamp: Date.now(),
-        };
-
-        messages.value.push(incomingMessage);
-      }
-
-      deviceState.value.lastSync = Date.now();
-      deviceState.value.status = "online";
-
-      toast.add({
-        title: "Refreshed",
-        color: "info",
-        icon: "i-heroicons-arrow-path",
-      });
-    } catch (error) {
-      deviceState.value.status = "offline";
-
-      toast.add({
-        title: "Refresh failed",
-        description: "Could not fetch messages",
-        color: "error",
-        icon: "i-heroicons-x-circle",
-      });
-    }
-  };
-
   // Poll 間隔切り替え（3秒⇄10秒）
   const togglePollSpeed = () => {
     deviceState.value.pollMs = deviceState.value.pollMs === 3000 ? 10000 : 3000;
+  };
+
+  // ===== SSE接続（Real-time） =====
+  const connectSSE = () => {
+    if (eventSource) {
+      return;
+    }
+
+    eventSource = new EventSource("/api/sse");
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data) as MessageApiResponse & { clientId?: string };
+
+        if (data.statusCode === 200 && data.message) {
+          // clientIdがある場合、自分が送ったメッセージの可能性がある
+          if (data.clientId) {
+            const existingIndex = messages.value.findIndex((m: Message) => m.clientId === data.clientId);
+
+            if (existingIndex !== -1) {
+              // 自分が送ったメッセージ → statusをackに更新
+              const msg = messages.value[existingIndex];
+              if (msg) msg.status = "ack";
+              return; // 新規追加はしない
+            }
+          }
+
+          // clientIdがないか、既存メッセージに見つからない場合 → 新着メッセージとして追加
+          const incomingMessage: Message = {
+            id: `msg-in-${Date.now()}`,
+            text: data.message,
+            direction: "in",
+            status: "ack",
+            timestamp: Date.now(),
+          };
+
+          messages.value.push(incomingMessage);
+
+          toast.add({
+            title: "New message",
+            description: data.message,
+            color: "info",
+            icon: "i-heroicons-chat-bubble-left",
+          });
+        }
+      } catch (error) {
+        console.error("SSE message parse error:", error);
+      }
+    };
+
+    eventSource.onerror = () => {
+      console.error("SSE connection error");
+      deviceState.value.status = "offline";
+
+      // 再接続の試行
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+      }
+
+      setTimeout(() => {
+        connectSSE();
+      }, 5000);
+    };
+
+    eventSource.onopen = () => {
+      deviceState.value.status = "online";
+    };
+  };
+
+  const disconnectSSE = () => {
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
   };
 
   // ===== 初期化（Init） =====
@@ -219,6 +238,12 @@ export const useMessaging = () => {
         timestamp: Date.now() - 30000,
       },
     ];
+
+    connectSSE();
+  });
+
+  onUnmounted(() => {
+    disconnectSSE();
   });
 
   // ===== 返り値（Public API） =====
@@ -230,7 +255,7 @@ export const useMessaging = () => {
     queueCount,
     sendMessage,
     sendReaction,
-    manualRefresh,
     togglePollSpeed,
+    connectSSE,
   };
 };
