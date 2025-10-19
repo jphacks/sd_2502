@@ -1,12 +1,7 @@
 #include <M5Unified.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
-
-// WPA2-Enterprise WiFi設定
-#define EAP_IDENTITY "RAG0JT1N@tohtech.f.eduroam.jp"
-#define EAP_USERNAME "RAG0JT1N@tohtech.f.eduroam.jp"
-#define EAP_PASSWORD "CQ1t?ZVXyqxW"
-#define SSID "eduroam"
+#include "credentials.h"
 
 const char* server_post = "https://sd-2502.vercel.app/api/message";  // Nuxt側APIに合わせて変更
 const char* server_get = "https://sd-2502.vercel.app/api/message";
