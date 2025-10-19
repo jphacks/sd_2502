@@ -4,7 +4,7 @@
 #include <esp_wifi.h>
 #include "esp_wpa2.h"
 #include <ArduinoJson.h>
-#include "credentials.h"  // 認証情報を外部から読み込む
+#include "credentials.h"  // 認証情報
 
 const char* ssid = "eduroam";
 const char* apiUrl = "https://sd-2502.vercel.app/api/message";
@@ -25,10 +25,10 @@ int scrollX = 80;
 unsigned long lastScrollTime = 0;
 const int scrollSpeed = 30;
 
-// 絵文字を文字列に変換（受信時）
+// 絵文字→文字列変換（受信時）
 String interpretEmoji(String msg) {
   if (msg == "👍") return "good";
-  if (msg == "❤️" || msg == "❤️") return "heart";
+  if (msg == "❤️") return "heart";
   if (msg == "✨") return "thank you";
   return msg;
 }

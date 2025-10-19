@@ -2,7 +2,7 @@
   <div class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-4">
     <div class="flex items-center justify-between mb-4">
       <!-- リアクション送信用ボタン群 -->
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 flex-1 mr-2">
         <UButton
           v-for="reaction in reactions"
           :key="reaction"
@@ -10,8 +10,9 @@
           variant="soft"
           size="lg"
           @click="$emit('reaction', reaction)"
+          class="!px-2 sm:!px-3"
         >
-          <span class="text-xl">{{ reaction }}</span>
+          <span class="text-sm sm:text-xl">{{ reaction }}</span>
         </UButton>
       </div>
 
@@ -53,7 +54,7 @@ defineEmits<{
 }>();
 
 // 表示するリアクションの候補
-const reactions: ReactionType[] = ["👍", "❤️", "✨"];
+const reactions: ReactionType[] = ["いま何してる？", "OK👍", "❤️", "☕️", "すぐ行く！"];
 
 // ポーリング間隔から表示ラベルを算出
 // const pollSpeed = computed(() => {
