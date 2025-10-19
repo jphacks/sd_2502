@@ -99,8 +99,9 @@ const statusBadgeColor = computed(
 const parsedText = computed(() => {
   if (!props.message?.text) return "";
 
-  //'good' を 👍 に置換、'bad' を 🙂‍↔️ に置換
-  return props.message.text.replace(/\bgood\b/gi, "👍").replace(/\bbad\b/gi, "🙂‍↔️");
+  // 'stay home' を 'いま家にいるよ' に置換
+  return props.message.text
+    .replace(/\bstay home\b/gi, "いま家にいるよ");
 });
 
 // タイムスタンプの人間可読表示
