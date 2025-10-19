@@ -7,7 +7,7 @@ const {
   queueCount,
   sendMessage,
   sendReaction,
-  manualRefresh,
+  connectSSE,
   togglePollSpeed,
 } = useMessaging();
 </script>
@@ -15,7 +15,7 @@ const {
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
     <!-- ヘッダー（デバイス状態の表示と手動更新ボタン） -->
-    <AppHeader :device-state="deviceState" @refresh="manualRefresh" />
+    <AppHeader :device-state="deviceState" @refresh="connectSSE" />
 
     <!-- メインコンテンツ：直近の入出力メッセージをカードで表示 -->
     <div class="flex-1 overflow-y-auto px-4 py-6">
