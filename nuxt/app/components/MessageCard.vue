@@ -26,7 +26,7 @@
         </p>
       </div>
       <div v-else class="min-h-[80px] flex items-center justify-center">
-        <p class="text-gray-500 dark:text-gray-600 text-sm">No messages yet</p>
+        <p class="text-gray-500 dark:text-gray-600 text-sm">まだメッセージがありません</p>
       </div>
 
       <div class="flex justify-end">
