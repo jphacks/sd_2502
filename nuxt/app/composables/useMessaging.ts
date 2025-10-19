@@ -118,9 +118,10 @@ export const useMessaging = () => {
 
     try {
       // API呼び出し（英字文字列を送信）
+      const englishText = reactionToEnglish[reaction] || reaction;
       await $fetch<MessageApiResponse>("/api/message", {
         method: "POST",
-        body: { message: reaction, clientId },
+        body: { message: englishText, clientId },
       });
 
       const messageIndex = messages.value.findIndex((m: Message) => m.clientId === clientId);
