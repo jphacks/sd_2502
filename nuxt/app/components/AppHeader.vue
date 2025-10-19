@@ -21,18 +21,6 @@
           @click="toggleTheme()"
           :aria-label="`テーマを${theme === 'dark' ? 'ライト' : 'ダーク'}モードに切り替え`"
         />
-        <!-- 最終更新のラベル付き表示。ホバーでフル日時を表示 -->
-        <span class="text-sm text-gray-500 dark:text-gray-400" :title="lastSyncFull">
-          最終更新: {{ lastSyncTime }}
-        </span>
-        <UButton
-          icon="i-heroicons-arrow-path"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          :loading="deviceState.status === 'syncing'"
-          @click="onRefresh"
-        />
       </div>
     </div>
   </div>
