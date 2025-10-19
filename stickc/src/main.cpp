@@ -18,13 +18,22 @@ bool lastButtonState = false;
 int pressCount = 0;
 String latestMessage = "Starting...";
 bool messageUpdated = true;
+bool messageIsLocal = false;  // true: 送信メッセージ, false: 受信メッセージ
 
 // スクロール制御
 int scrollX = 80;
 unsigned long lastScrollTime = 0;
 const int scrollSpeed = 30;
 
-// スクロール表示
+// 絵文字を文字列に変換（受信時）
+String interpretEmoji(String msg) {
+  if (msg == "👍") return "good";
+  if (msg == "❤️" || msg == "❤️") return "heart";
+  if (msg == "✨") return "thank you";
+  return msg;
+}
+
+// スクロール表示（方向対応）
 void updateScrollingMessage() {
   if (!messageUpdated && millis() - lastScrollTime < scrollSpeed) return;
   lastScrollTime = millis();
@@ -35,15 +44,22 @@ void updateScrollingMessage() {
   int scrollWidth = padded.length() * charWidth;
 
   M5.Lcd.fillScreen(BLACK);
-  M5.Lcd.setCursor(scrollX, 25);
   M5.Lcd.setTextSize(2);
   M5.Lcd.setTextColor(WHITE);
+  M5.Lcd.setCursor(scrollX, 25);
   M5.Lcd.print(padded);
 
-  scrollX -= 2;
-  if (scrollX < -scrollWidth) scrollX = screenWidth;
+  // 方向を変える
+  if (messageIsLocal) {
+    scrollX += 2;
+    if (scrollX > screenWidth) scrollX = -scrollWidth;
+  } else {
+    scrollX -= 2;
+    if (scrollX < -scrollWidth) scrollX = screenWidth;
+  }
+
   if (messageUpdated) {
-    scrollX = screenWidth;
+    scrollX = messageIsLocal ? -scrollWidth : screenWidth;
     messageUpdated = false;
   }
 }
@@ -57,6 +73,7 @@ void sendMessage(String message) {
 
   latestMessage = message;
   messageUpdated = true;
+  messageIsLocal = true;
 
   HTTPClient http;
   http.begin(apiUrl);
@@ -92,9 +109,12 @@ void fetchMessage() {
     }
 
     String message = doc["message"] | "";
+    message = interpretEmoji(message);
+
     if (message != latestMessage) {
       latestMessage = message;
       messageUpdated = true;
+      messageIsLocal = false;
     }
   } else {
     Serial.printf("HTTP GET failed, code: %d\n", httpCode);
@@ -103,7 +123,7 @@ void fetchMessage() {
   http.end();
 }
 
-// ボタン処理
+// ボタン処理（1回: OK / 2回: Stay Home / 長押し: SOS）
 void handleButton() {
   M5.update();
   bool currentState = M5.BtnA.isPressed();
@@ -117,7 +137,7 @@ void handleButton() {
     unsigned long pressDuration = currentTime - lastPressTime;
 
     if (pressDuration > 1000) {
-      sendMessage("☆");
+      sendMessage("SOS");  // 長押し
       pressCount = 0;
     } else {
       pressCount++;
@@ -125,11 +145,11 @@ void handleButton() {
     }
   }
 
-  if (pressCount == 1 && (currentTime - lastReleaseTime > 400)) {
-    sendMessage("good");
+  if (pressCount == 1 && (currentTime - lastReleaseTime > 600)) {
+    sendMessage("OK");
     pressCount = 0;
   } else if (pressCount == 2) {
-    sendMessage("bad");
+    sendMessage("Stay Home");
     pressCount = 0;
   }
 
@@ -157,7 +177,7 @@ void setup() {
   esp_wifi_connect();
 }
 
-// ループ
+// メインループ
 void loop() {
   handleButton();
 

@@ -1,15 +1,9 @@
 #include <M5Core2.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include "credentials.h"  // 認証情報を外部から読み込む
 
-// WPA2-Enterprise WiFi設定
-#define EAP_IDENTITY "RAG0JT1N@tohtech.f.eduroam.jp"
-#define EAP_USERNAME "RAG0JT1N@tohtech.f.eduroam.jp"
-#define EAP_PASSWORD "CQ1t?ZVXyqxW"
-#define SSID "eduroam"
-
-
-const char* server = "https://sd-2502.vercel.app/api/message";  // Nuxt側APIに合わせて変更
+const char* server = "https://sd-2502.vercel.app/api/message";  // Nuxt側API
 
 void sendMessage(const String& text);
 
@@ -38,7 +32,6 @@ void setup() {
   M5.Lcd.println("B: NG");
 }
 
-//  実際の定義
 void sendMessage(const String& text) {
   if (WiFi.status() != WL_CONNECTED) {
     M5.Lcd.setCursor(10, 180);
