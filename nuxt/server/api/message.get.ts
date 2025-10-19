@@ -7,10 +7,10 @@ export default defineEventHandler(async () => {
       statusCode: 400,
       message: "No message found",
     };
-  };
+  }
 
   return {
     statusCode: 200,
-    message: latestMessage,
+    message: String(latestMessage),
   };
 });

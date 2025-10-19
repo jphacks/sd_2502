@@ -1,3 +1,5 @@
+import { messageHooks } from "../utils/hooks";
+
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const storage = useStorage();
@@ -9,10 +11,20 @@ export default defineEventHandler(async (event) => {
     };
   }
 
-  await storage.setItem("latest-message", body.message);
+  const latestMessage = String(body.message);
+  const clientId = body.clientId as string | undefined;
+
+  await storage.setItem("latest-message", latestMessage);
+
+  // SSEでメッセージを配信（clientIdも含める）
+  await messageHooks.callHook("message:new", {
+    statusCode: 200,
+    message: latestMessage,
+    clientId,
+  });
 
   return {
     statusCode: 200,
-    message: body.message,
+    message: latestMessage,
   };
 });
