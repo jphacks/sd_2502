@@ -1,6 +1,13 @@
 import type { Message, DeviceState, ReactionType, MessageApiResponse } from "../../types/message";
 import { ref, computed, onMounted, onUnmounted } from "vue";
 
+// リアクション候補を英字文字列に変換するマッピング
+const reactionToEnglish: Record<string, string> = {
+  "OK👍": "ok",
+  "❤️": "love",
+  "☕️": "break",
+};
+
 export const useMessaging = () => {
   // 状態
   const messages = ref<Message[]>([]);
@@ -96,10 +103,14 @@ export const useMessaging = () => {
   // リアクション送信（アイコン文字をテキストとして送る）
   const sendReaction = async (reaction: ReactionType) => {
     const clientId = `react-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    
+    // リアクションを英字文字列に変換
+    const englishReaction = reactionToEnglish[reaction] || reaction;
+    
     const newMessage: Message = {
       id: clientId,
       clientId,
-      text: reaction,
+      text: reaction, // UIには元のリアクションを表示
       direction: "out",
       status: "sending",
       timestamp: Date.now(),
@@ -109,10 +120,10 @@ export const useMessaging = () => {
     deviceState.value.queueCount++;
 
     try {
-      // API呼び出し
+      // API呼び出し（英字文字列を送信）
       await $fetch<MessageApiResponse>("/api/message", {
         method: "POST",
-        body: { message: reaction, clientId },
+        body: { message: englishReaction, clientId },
       });
 
       const messageIndex = messages.value.findIndex((m: Message) => m.clientId === clientId);
@@ -170,9 +181,12 @@ export const useMessaging = () => {
           }
 
           // clientIdがないか、既存メッセージに見つからない場合 → 新着メッセージとして追加
+          // 英字文字列をリアクション候補に逆変換
+          const displayText = englishToReaction[data.message] || data.message;
+          
           const incomingMessage: Message = {
             id: `msg-in-${Date.now()}`,
-            text: data.message,
+            text: displayText,
             direction: "in",
             status: "ack",
             timestamp: Date.now(),
