@@ -6,6 +6,9 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "ja",
       },
+      link: [
+        { rel: "icon", type: "image/png", href: "/favicon.png" },
+      ],
     },
   },
   compatibilityDate: "2025-07-15",
@@ -17,8 +20,14 @@ export default defineNuxtConfig({
     manifest: {
       name: "Re:ポケベル",
       short_name: "Re:ポケベル",
-      theme_color: "#ffffff",
-      icons: [],
+      theme_color: "#5BA3D0",
+      icons: [
+        {
+          src: "/favicon.png",
+          sizes: "1024x1024",
+          type: "image/png",
+        },
+      ],
     },
   },
 });
