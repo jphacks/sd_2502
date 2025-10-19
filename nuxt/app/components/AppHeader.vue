@@ -11,8 +11,16 @@
         </UBadge>
       </div>
 
-      <!-- 右側: テーマ切替 / 最終同期時刻 / 手動更新ボタン -->
+      <!-- 右側: 履歴ボタン / テーマ切替 / 最終同期時刻 / 手動更新ボタン -->
       <div class="flex items-center gap-3">
+        <UButton
+          icon="i-heroicons-clock"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          @click="handleShowHistory"
+          aria-label="メッセージ履歴を表示"
+        />
         <UButton
           :icon="theme === 'dark' ? 'i-heroicons-moon' : 'i-heroicons-sun'"
           color="neutral"
@@ -35,10 +43,17 @@ const props = defineProps<{
   deviceState: DeviceState;
 }>();
 
-// emits: 手動更新トリガー
+// emits: 手動更新トリガー、履歴表示トリガー
 const emit = defineEmits<{
   refresh: [];
+  showHistory: [];
 }>();
+
+// 履歴表示ボタンのクリックハンドラ
+const handleShowHistory = () => {
+  console.log("History button clicked in AppHeader");
+  emit("showHistory");
+};
 
 // 状態に応じたバッジ色（UI の視認性向上）
 const statusColor = computed((): "primary" | "secondary" | "success" | "info" | "warning" | "error" | "neutral" => {
