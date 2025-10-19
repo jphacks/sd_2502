@@ -1,40 +1,34 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <M5StickC.h>
-#include <esp_wifi.h>       // ← 追加: esp_wifi_connect() のため
-#include "esp_wpa2.h"       // ← WPA2 Enterprise用
-#include <ArduinoJson.h>    // ← ArduinoJsonライブラリ
-
-// ============ eduroam認証情報 =============
-#define EAP_IDENTITY "RAH06e12@tohtech.f.eduroam.jp"
-#define EAP_USERNAME "RAH06e12@tohtech.f.eduroam.jp"
-#define EAP_PASSWORD "5]qQmzeb]8K!"
+#include <esp_wifi.h>
+#include "esp_wpa2.h"
+#include <ArduinoJson.h>
+#include "credentials.h"  // 認証情報を外部から読み込む
 
 const char* ssid = "eduroam";
 const char* apiUrl = "https://sd-2502.vercel.app/api/message";
 
-// ============ 状態管理 =============
+// 状態管理
 unsigned long lastGetTime = 0;
 const unsigned long getInterval = 10000;
-
 unsigned long lastPressTime = 0;
 unsigned long lastReleaseTime = 0;
 bool lastButtonState = false;
 int pressCount = 0;
-
 String latestMessage = "Starting...";
 bool messageUpdated = true;
 
-// ============ スクロール制御 =============
+// スクロール制御
 int scrollX = 80;
 unsigned long lastScrollTime = 0;
-const int scrollSpeed = 30;  // ms
+const int scrollSpeed = 30;
 
-// ============ 非ブロッキングスクロール表示 ============
+// スクロール表示
 void updateScrollingMessage() {
   if (!messageUpdated && millis() - lastScrollTime < scrollSpeed) return;
-
   lastScrollTime = millis();
+
   int screenWidth = 80;
   int charWidth = 12;
   String padded = latestMessage + "     ";
@@ -47,18 +41,14 @@ void updateScrollingMessage() {
   M5.Lcd.print(padded);
 
   scrollX -= 2;
-
-  if (scrollX < -scrollWidth) {
-    scrollX = screenWidth;
-  }
-
+  if (scrollX < -scrollWidth) scrollX = screenWidth;
   if (messageUpdated) {
     scrollX = screenWidth;
     messageUpdated = false;
   }
 }
 
-// ============ メッセージ送信 ============
+// メッセージ送信
 void sendMessage(String message) {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi not connected. Skipping send.");
@@ -80,11 +70,10 @@ void sendMessage(String message) {
 
   Serial.printf("HTTP POST code: %d\n", httpCode);
   Serial.println("Response: " + response);
-
   http.end();
 }
 
-// ============ メッセージ取得 ============
+// メッセージ取得
 void fetchMessage() {
   if (WiFi.status() != WL_CONNECTED) return;
 
@@ -114,7 +103,7 @@ void fetchMessage() {
   http.end();
 }
 
-// ============ ボタン処理 ============
+// ボタン処理
 void handleButton() {
   M5.update();
   bool currentState = M5.BtnA.isPressed();
@@ -147,7 +136,7 @@ void handleButton() {
   lastButtonState = currentState;
 }
 
-// ============ 初期化 ============
+// 初期化
 void setup() {
   M5.begin();
   M5.Lcd.setRotation(3);
@@ -168,7 +157,7 @@ void setup() {
   esp_wifi_connect();
 }
 
-// ============ メインループ ============
+// ループ
 void loop() {
   handleButton();
 
