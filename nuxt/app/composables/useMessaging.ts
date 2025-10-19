@@ -103,10 +103,7 @@ export const useMessaging = () => {
   // リアクション送信（アイコン文字をテキストとして送る）
   const sendReaction = async (reaction: ReactionType) => {
     const clientId = `react-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-    
-    // リアクションを英字文字列に変換
-    // const englishReaction = reactionToEnglish[reaction] || reaction;
-    
+
     const newMessage: Message = {
       id: clientId,
       clientId,
@@ -179,10 +176,6 @@ export const useMessaging = () => {
               return; // 新規追加はしない
             }
           }
-
-          // clientIdがないか、既存メッセージに見つからない場合 → 新着メッセージとして追加
-          // 英字文字列をリアクション候補に逆変換
-          // const displayText = englishToReaction[data.message] || data.message;
           
           const incomingMessage: Message = {
             id: `msg-in-${Date.now()}`,

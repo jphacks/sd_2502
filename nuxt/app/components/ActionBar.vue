@@ -22,16 +22,6 @@
           <UIcon name="i-heroicons-queue-list" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
           <span class="text-sm text-gray-600 dark:text-gray-400">{{ queueCount }}</span>
         </div>
-
-        <!-- ポーリング速度の切替（FAST/STD）
-        <UButton
-          :color="pollSpeed === 'FAST' ? 'success' : 'neutral'"
-          variant="soft"
-          size="xs"
-          @click="$emit('togglePoll')"
-        >
-          {{ pollSpeed }}
-        </UButton> -->
       </div>
     </div>
   </div>
@@ -56,8 +46,4 @@ defineEmits<{
 // 表示するリアクションの候補
 const reactions: ReactionType[] = ["いま何してる？", "OK👍", "❤️", "☕️", "すぐ行く！"];
 
-// ポーリング間隔から表示ラベルを算出
-// const pollSpeed = computed(() => {
-//   return props.pollMs <= 3000 ? "FAST" : "STD";
-// });
 </script>

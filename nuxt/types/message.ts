@@ -18,7 +18,7 @@ export type DeviceState = {
   queueCount: number;
 };
 
-export type ReactionType = "👍" | "❤️" | "✨" | "❗";
+export type ReactionType = "いま何してる？" | "OK👍" | "❤️" | "☕️" | "すぐ行く！";
 
 /** APIのレスポンス型定義 */
 export type MessageApiResponse = {
