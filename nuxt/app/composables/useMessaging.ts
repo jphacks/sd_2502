@@ -6,7 +6,7 @@ export const useMessaging = () => {
   const messages = ref<Message[]>([]);
   const deviceState = ref<DeviceState>({
     id: "device-1",
-    name: "My Device",
+    name: "Re:ポケベル",
     status: "online",
     lastSync: Date.now(),
     pollMs: 3000,
