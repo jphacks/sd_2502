@@ -3,8 +3,7 @@
 #include <HTTPClient.h>
 #include "credentials.h"
 
-const char* server_post = "https://sd-2502.vercel.app/api/message";  // Nuxt側APIに合わせて変更
-const char* server_get = "https://sd-2502.vercel.app/api/message";
+const char* server = "https://sd-2502.vercel.app/api/message";  // Nuxt側API
 
 void sendMessage(const String& text);
 void receiveMessage();
