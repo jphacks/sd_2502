@@ -1,7 +1,7 @@
 #include <M5Unified.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include "credentials.h"  // 認証情報を外部から読み込む
+#include "credentials.h"
 
 const char* server = "https://sd-2502.vercel.app/api/message";  // Nuxt側API
 
@@ -28,12 +28,13 @@ void setup() {
   M5.Speaker.setVolume(50);  // 0〜255
 
   // display config
+  M5.Lcd.setTextFont(&fonts::efontJA_16);
   M5.Display.setRotation(1);
   M5.Display.fillScreen(BLACK);
   M5.Display.setTextColor(WHITE);
   M5.Display.setTextSize(2);
   M5.Display.setCursor(10, 30);
-  M5.Display.println("Connecting WiFi...");
+  M5.Lcd.println("Connecting WiFi...");
 
   // wifi config
   WiFi.begin(SSID, WPA2_AUTH_PEAP, EAP_IDENTITY, EAP_USERNAME, EAP_PASSWORD);
@@ -45,19 +46,19 @@ void setup() {
   M5.Display.setRotation(1);
   M5.Display.fillScreen(BLACK);
   M5.Display.setCursor(10, 40);
-  M5.Display.println("WiFi Connected!");
+  M5.Lcd.println("WiFi Connected!");
   M5.Display.setCursor(10, 90);
-  M5.Display.println("A: OK");
+  M5.Lcd.println("A: OK");
   M5.Display.setCursor(10, 130);
-  M5.Display.println("B: Stay Home");
+  M5.Lcd.println("B: 家にいます");
   M5.Display.setCursor(10, 170);
-  M5.Display.println("C: SOS!!");
+  M5.Lcd.println("C: SOS!!");
 }
 
 void sendMessage(const String& text) {
   if (WiFi.status() != WL_CONNECTED) {
     M5.Display.setCursor(10, 180);
-    M5.Display.println("WiFi lost!");
+    M5.Lcd.println("WiFi lost!");
     M5.Speaker.tone(400, 200);
     return;
   }
@@ -132,7 +133,7 @@ void loop() {
 
   if (M5.BtnB.wasPressed()) {
     M5.Speaker.tone(800, 100);
-    sendMessage("Stay Home");
+    sendMessage("家にいます");
   }
 
   if (M5.BtnC.wasPressed()) {
