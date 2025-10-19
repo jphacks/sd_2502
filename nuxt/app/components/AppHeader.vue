@@ -58,11 +58,11 @@ const statusColor = computed((): "primary" | "secondary" | "success" | "info" | 
 const statusLabel = computed(() => {
   switch (props.deviceState.status) {
     case "online":
-      return "オンライン";
+      return "接続済み";
     case "syncing":
       return "同期中";
     case "offline":
-      return "オフライン";
+      return "接続切れ";
     default:
       return "不明";
   }
