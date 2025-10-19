@@ -220,25 +220,7 @@ export const useMessaging = () => {
   };
 
   // ===== 初期化（Init） =====
-  // 初期メッセージ（サンプルデータ）
   onMounted(() => {
-    messages.value = [
-      {
-        id: "init-1",
-        text: "こんにちは！接続しました",
-        direction: "in",
-        status: "ack",
-        timestamp: Date.now() - 60000,
-      },
-      {
-        id: "init-2",
-        text: "よろしくお願いします",
-        direction: "out",
-        status: "ack",
-        timestamp: Date.now() - 30000,
-      },
-    ];
-
     connectSSE();
   });
 
