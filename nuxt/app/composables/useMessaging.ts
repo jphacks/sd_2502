@@ -105,7 +105,7 @@ export const useMessaging = () => {
     const clientId = `react-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     
     // リアクションを英字文字列に変換
-    const englishReaction = reactionToEnglish[reaction] || reaction;
+    // const englishReaction = reactionToEnglish[reaction] || reaction;
     
     const newMessage: Message = {
       id: clientId,
@@ -123,7 +123,7 @@ export const useMessaging = () => {
       // API呼び出し（英字文字列を送信）
       await $fetch<MessageApiResponse>("/api/message", {
         method: "POST",
-        body: { message: englishReaction, clientId },
+        body: { message: reaction, clientId },
       });
 
       const messageIndex = messages.value.findIndex((m: Message) => m.clientId === clientId);
@@ -182,11 +182,11 @@ export const useMessaging = () => {
 
           // clientIdがないか、既存メッセージに見つからない場合 → 新着メッセージとして追加
           // 英字文字列をリアクション候補に逆変換
-          const displayText = englishToReaction[data.message] || data.message;
+          // const displayText = englishToReaction[data.message] || data.message;
           
           const incomingMessage: Message = {
             id: `msg-in-${Date.now()}`,
-            text: displayText,
+            text: data.message,
             direction: "in",
             status: "ack",
             timestamp: Date.now(),
