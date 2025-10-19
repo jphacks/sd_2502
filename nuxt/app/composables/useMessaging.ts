@@ -2,7 +2,7 @@ import type { Message, DeviceState, ReactionType, MessageApiResponse } from "../
 import { ref, computed, onMounted, onUnmounted } from "vue";
 
 export const useMessaging = () => {
-  // ===== 状態（State） =====
+  // 状態
   const messages = ref<Message[]>([]);
   const deviceState = ref<DeviceState>({
     id: "device-1",
@@ -18,7 +18,7 @@ export const useMessaging = () => {
   // SSE接続の管理
   let eventSource: EventSource | null = null;
 
-  // ===== 派生値（Derived） =====
+  // 派生値
   // 最新の受信メッセージ
   const latestIncoming = computed(() => {
     return messages.value
@@ -38,8 +38,8 @@ export const useMessaging = () => {
     return messages.value.filter((m: Message) => m.direction === "out" && m.status === "sending").length;
   });
 
-  // ===== 操作（Actions） =====
-  // メッセージ送信（楽観的UI + API連携）
+  // 操作
+  // メッセージ送信
   const sendMessage = async (text: string) => {
     const clientId = `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     const newMessage: Message = {
